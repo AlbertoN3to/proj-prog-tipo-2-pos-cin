@@ -23,7 +23,9 @@ def main(config):
 
     # setup data_loader instances
     data_loader = config.init_obj('data_loader', module_data)
+    print()
     valid_data_loader = data_loader.split_validation()
+
 
     # build model architecture, then print to console
     model = config.init_obj('arch', module_arch)
@@ -31,6 +33,7 @@ def main(config):
 
     # prepare for (multi-device) GPU training
     device, device_ids = prepare_device(config['n_gpu'])
+    model = model.model
     model = model.to(device)
     if len(device_ids) > 1:
         model = torch.nn.DataParallel(model, device_ids=device_ids)

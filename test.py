@@ -1,11 +1,45 @@
 import argparse
 import torch
+import numpy as np
 from tqdm import tqdm
 import data_loader.data_loaders as module_data
 import model.loss as module_loss
 import model.metric as module_metric
 import model.model as module_arch
 from parse_config import ConfigParser
+from sklearn.metrics import confusion_matrix,ConfusionMatrixDisplay
+
+# fix random seeds for reproducibility
+SEED = 123
+torch.manual_seed(SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+np.random.seed(SEED)
+
+def _save_confusion_matrix(matrix, classes, folder, name=''):
+    """Save the confusion matrix as .png
+
+    Args:
+        matrix (numpy.ndarray): Confusion matrix data.
+        matrix (list): List of classes.
+        matrix (str): Path to save confusion matrix file.
+        name (str): Custom file name posfix.
+
+    Return:
+        A list of dictionaries python compatible.
+
+    Raise:
+        None
+    """
+
+    disp = ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=classes)
+    disp.plot(include_values=True, xticksrotation=90.0, cmap='Greens')
+    disp.figure.setfigwidth(12.8)
+    disp.figure.set_figheight(9.6)
+    plt.tight_layout()
+    save_path = os.path.join(folder, f'confusionmatrix{name}.png')
+    plt.savefig(save_path, figsize=(100,10))
+    plt.clf()
 
 
 def main(config):
@@ -23,6 +57,7 @@ def main(config):
 
     # build model architecture
     model = config.init_obj('arch', module_arch)
+    model = model.model
     logger.info(model)
 
     # get function handles of loss and metrics
@@ -66,6 +101,9 @@ def main(config):
         met.__name__: total_metrics[i].item() / n_samples for i, met in enumerate(metric_fns)
     })
     logger.info(log)
+    
+    # c_matrix = confusion_matrix(ground_truth, predictions, labels=classes_names)
+    # _save_confusion_matrix(c_matrix, classes_names, '.', name='homologation')
 
 
 if __name__ == '__main__':

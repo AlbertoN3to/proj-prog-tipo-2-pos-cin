@@ -9,10 +9,10 @@
     "data_loader": {
         "type": "YoutubeDataLoader",
         "args":{
-            "data_dir": "new_dataset/train",
+            "data_dir": "new_dataset/test",
             "batch_size": 128,
             "shuffle": true,
-            "validation_split": 0.1,
+            "validation_split": 0.0,
             "num_workers": 2
         }
     },
@@ -37,7 +37,7 @@
         }
     },
     "trainer": {
-        "epochs": 100,
+        "epochs": 10,
 
         "save_dir": "saved/",
         "save_period": 1,
